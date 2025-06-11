@@ -5,7 +5,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 
 # --- Настройки ---
 TOKEN = os.getenv("BOT_TOKEN")      # ваш токен от BotFather
-ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID", "0"))  # ваш Telegram ID или Маргариты
+ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID", "643393091"))  # ваш Telegram ID или Сергея
 
 # Логирование
 logging.basicConfig(
@@ -19,7 +19,7 @@ def start(update: Update, context: CallbackContext):
     update.message.reply_text(
         "Здравствуйте!\n\n"
         "Напишите нам, что случилось. Мы в течение 5-10 минут решим Вашу проблему.\n"
-        "Или позвоните управляющей Маргарите 8-911-201-55-70"
+        "Или позвоните управляющей Сергею 8-961-609-66-62"
     )
 
 # Все текстовые сообщения – считаем обратной связью
