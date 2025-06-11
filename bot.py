@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 # загружаем .env
 load_dotenv()
 
-BOT_TOKEN    = os.getenv("7591380644:AAGfXO7Ehkppu_HfGxMt5fGC2GmUUiC2JZc")
-ADMIN_CHAT   = int(os.getenv("ADMIN_CHAT_ID", "643393091"))
-PHONE_NUMBER = os.getenv("MANAGER_PHONE", "8-925-936-07-11")
+BOT_TOKEN    = os.getenv("BOT_TOKEN")
+ADMIN_CHAT   = int(os.getenv("ADMIN_CHAT_ID", "0"))
+PHONE_NUMBER = os.getenv("MANAGER_PHONE", "8-000-000-00-00")
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
