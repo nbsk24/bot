@@ -1,66 +1,59 @@
-import os
+```python
 import logging
-from telegram import Update, ParseMode
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import os
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-# --- Настройки ---
-TOKEN = os.getenv("BOT_TOKEN")      # ваш токен от BotFather
-ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID", "643393091"))  # ваш Telegram ID или Сергея
-
-# Логирование
+# Настройка логирования
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# Команда /start
-def start(update: Update, context: CallbackContext):
-    update.message.reply_text(
+# Получаем токен и ID админа из переменных окружения
+BOT_TOKEN = os.getenv("7591380644:AAGfXO7Ehkppu_HfGxMt5fGC2GmUUiC2JZc")
+ADMIN_CHAT_ID = int(os.getenv("ADMIN_CHAT_ID", "643393091"))  # например ваш личный chat_id
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обрабатывает команду /start"""
+    text = (
         "Здравствуйте!\n\n"
         "Напишите нам, что случилось. Мы в течение 5-10 минут решим Вашу проблему.\n"
-        "Или позвоните управляющей Сергею 8-961-609-66-62"
+        "Или позвоните управляющему Михаилу 8-925-936-07-11"
     )
+    await update.message.reply_text(text)
 
-# Все текстовые сообщения – считаем обратной связью
-def feedback_handler(update: Update, context: CallbackContext):
+async def handle_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Пересылает любое текстовое сообщение администратору и отвечает клиенту"""
     user = update.effective_user
-    text = update.message.text
+    msg = update.message.text
 
-    # Подтверждение для пользователя
-    update.message.reply_text("Спасибо! Мы получили ваше сообщение и скоро с вами свяжемся.")
-
-    # Формируем сообщение для администратора
-    msg = (
-        f"🆕 <b>Новая обратная связь</b>\n"
-        f"👤 От: {user.full_name} (id: {user.id})\n"
-        f"📱 Username: @{user.username if user.username else '—'}\n"
-        f"💬 Сообщение:\n{text}"
+    # Формируем заголовок для админа
+    header = (
+        f"🆕 Новая обратная связь от @{user.username or user.first_name} "
+        f"(ID {user.id}):"
     )
 
-    # Шлём админам
-    context.bot.send_message(
-        chat_id=ADMIN_CHAT_ID,
-        text=msg,
-        parse_mode=ParseMode.HTML
-    )
+    # Пересылаем header + текст администратору
+    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=header)
+    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=msg)
 
-def error_handler(update: object, context: CallbackContext):
-    logger.error("Ошибка при обработке сообщения: %s", context.error)
+    # Подтверждение клиенту
+    await update.message.reply_text("Спасибо! Ваше сообщение получено, ожидайте ответа.")
 
 def main():
-    # создаём updater & dispatcher
-    updater = Updater(TOKEN)
-    dp = updater.dispatcher
+    if not BOT_TOKEN or ADMIN_CHAT_ID == 0:
+        logger.error("Не заданы BOT_TOKEN или ADMIN_CHAT_ID в переменных окружения")
+        return
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, feedback_handler))
-    dp.add_error_handler(error_handler)
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    # старт бота
-    updater.start_polling()
-    logger.info("Бот запущен.")
-    updater.idle()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_feedback))
 
-if __name__ == '__main__':
+    # Запускаем бот
+    app.run_polling()
+
+if __name__ == "__main__":
     main()
+```
